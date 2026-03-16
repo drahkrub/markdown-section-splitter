@@ -27,7 +27,7 @@
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>5.11.4</junit.version>
-		<assertj.version>3.27.3</assertj.version>
+		<assertj.version>3.27.7</assertj.version>
 	</properties>
 	<dependencies>
 		<dependency>
