@@ -1,7 +1,6 @@
 package org.springframework.ai.reader.markdown;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,17 +28,31 @@ import org.commonmark.renderer.markdown.MarkdownNodeRendererContext;
 import org.commonmark.renderer.markdown.MarkdownNodeRendererFactory;
 import org.commonmark.renderer.markdown.MarkdownRenderer;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.document.DocumentTransformer;
 
 /**
- * A {@link DocumentSplitter} that takes a Markdown as input.
+ * A {@link DocumentTransformer} that splits Markdown documents into sections.
  *
- * <p>The class is instantiated via the {@link Builder} returned from the {@link #builder()} method.</p>
+ * <p>
+ * Based on the {@code MarkdownDocumentSplitter} from the
+ * <a href="https://github.com/langchain4j/langchain4j">LangChain4j</a> project,
+ * which itself is a Java port of the document splitting concept from
+ * <a href="https://github.com/langchain-ai/langchain">LangChain</a> (Python).
+ * </p>
  *
- * <p>Internally it splits the document into sections, with metadata entries to identify the location of each section
- * in the document. It then optionally splits each section with the {@link DocumentSplitter} passed in to the Builder.
+ * <p>
+ * The class is instantiated via the {@link Builder} returned from the
+ * {@link #builder()} method.
+ * </p>
+ *
+ * <p>
+ * Internally it splits each document into sections, with metadata entries to
+ * identify the location of each section
+ * in the document. It then optionally splits each section with the
+ * {@link DocumentTransformer} passed in to the Builder.
  *
  */
-public class MarkdownSectionSplitter implements DocumentSplitter {
+public class MarkdownSectionTransformer implements DocumentTransformer {
 
     private static final Set<Extension> EXTENSIONS = Set.of(TablesExtension.create());
 
@@ -48,11 +61,11 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
     public static final String SECTION_INDEX_WITHIN_PARENT = "md_section_index_in_parent";
     public static final String SECTION_PARENT_HEADER = "md_parent_header";
 
-    private static final DocumentSplitter NO_SPLIT = Collections::singletonList;
+    private static final DocumentTransformer NO_SPLIT = documents -> documents;
 
     private static final String DEFAULT_EMPTY_SECTION_PLACEHOLDER_TEXT = ".";
 
-    private final DocumentSplitter sectionSplitter;
+    private final DocumentTransformer sectionSplitter;
 
     private final String documentTitle;
 
@@ -60,7 +73,7 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
 
     private final YamlFrontMatterConsumer yamlFrontMatterConsumer;
 
-    protected MarkdownSectionSplitter(Builder builder) {
+    protected MarkdownSectionTransformer(Builder builder) {
         Objects.requireNonNull(builder.getSectionSplitter(), "sectionSplitter must not be null");
         this.sectionSplitter = builder.getSectionSplitter();
         this.documentTitle = builder.getDocumentTitle();
@@ -79,7 +92,13 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
     }
 
     @Override
-    public List<Document> split(Document document) {
+    public List<Document> apply(List<Document> documents) {
+        return documents.stream()
+                .flatMap(document -> splitDocument(document).stream())
+                .toList();
+    }
+
+    private List<Document> splitDocument(Document document) {
         // Strip BOM (Byte Order Mark) if present at the beginning of the text.
         // The BOM character (\uFEFF) is commonly found in UTF-8 files created on Windows
         // and can prevent CommonMark from correctly parsing the first heading.
@@ -103,7 +122,7 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
                 document.getMetadata(), emptySectionPlaceholderText, sectionSplitter, documentTitle);
 
         MarkdownRenderer renderer = MarkdownRenderer.builder()
-                .nodeRendererFactory(new MarkdownSectionSplitterNodeRendererFactory(context))
+                .nodeRendererFactory(new MarkdownSectionTransformerNodeRendererFactory(context))
                 .extensions(EXTENSIONS)
                 .build();
         // We use the Appendable allowed by the renderer as the hook in.
@@ -114,22 +133,28 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
     }
 
     public static class Builder {
-        private DocumentSplitter sectionSplitter = NO_SPLIT;
+        private DocumentTransformer sectionSplitter = NO_SPLIT;
         private String documentTitle;
         private String emptySectionPlaceholderText;
 
         private YamlFrontMatterConsumer yamlFrontMatterConsumer;
 
         /**
-         * <p>Sets the {@link DocumentSplitter} to further split each section.</p>
+         * <p>
+         * Sets the {@link DocumentTransformer} to further split each section.
+         * </p>
          *
-         * <p>If not specified, the {@link MarkdownSectionSplitter} created by this builder will not
-         * attempt to split the sections further.</p>
+         * <p>
+         * If not specified, the {@link MarkdownSectionTransformer} created by this builder
+         * will not
+         * attempt to split the sections further.
+         * </p>
          *
-         * @param sectionSplitter the {@link DocumentSplitter} used to further split the sections.
+         * @param sectionSplitter the {@link DocumentTransformer} used to further split
+         *                        the sections.
          * @return this Builder instance
          */
-        public Builder setSectionSplitter(DocumentSplitter sectionSplitter) {
+        public Builder setSectionSplitter(DocumentTransformer sectionSplitter) {
             this.sectionSplitter = sectionSplitter;
             return this;
         }
@@ -186,14 +211,14 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
         }
 
         /**
-         * Constructs the {@link MarkdownSectionSplitter} instance
-         * @return the MarkdownSectionSplitter
+         * Constructs the {@link MarkdownSectionTransformer} instance
+         * @return the MarkdownSectionTransformer
          */
-        public MarkdownSectionSplitter build() {
-            return new MarkdownSectionSplitter(this);
+        public MarkdownSectionTransformer build() {
+            return new MarkdownSectionTransformer(this);
         }
 
-        public DocumentSplitter getSectionSplitter() {
+        public DocumentTransformer getSectionSplitter() {
             return sectionSplitter;
         }
 
@@ -229,7 +254,7 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
      *   <li>Applying the configured sectionSplitter to further split each section</li>
      * </ul>
      * <p>
-     * Instances are created during {@link #split(Document)} and used by
+     * Instances are created during {@link #splitDocument(Document)} and used by
      * {@link HeaderSplittingCoreNodeRenderer} to signal section boundaries.
      */
     private class MarkdownSplitterContext {
@@ -239,7 +264,7 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
         private final List<Document> segments = new ArrayList<>();
         private final List<Header> headers = new ArrayList<>();
         private final String emptySectionPlaceholderText;
-        private final DocumentSplitter sectionSplitter;
+        private final DocumentTransformer sectionSplitter;
         private final String documentTitle;
         private Header currentHeader;
         private int nullHeaderIndex = 0;
@@ -247,8 +272,8 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
         MarkdownSplitterContext(
                 Map<String, Object> metadata,
                 final String emptySectionPlaceholderText,
-                final DocumentSplitter sectionSplitter,
-                final String documentTitle) {
+                final DocumentTransformer sectionSplitter,
+                        final String documentTitle) {
             this.originalMetadata = metadata;
             this.emptySectionPlaceholderText = emptySectionPlaceholderText;
             this.sectionSplitter = sectionSplitter;
@@ -329,7 +354,7 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
             }
             Document document = new Document(sectionText, metadata);
 
-            List<Document> sectionSegments = sectionSplitter.split(document);
+            List<Document> sectionSegments = sectionSplitter.apply(List.of(document));
             this.segments.addAll(sectionSegments);
         }
 
@@ -413,10 +438,10 @@ public class MarkdownSectionSplitter implements DocumentSplitter {
         }
     }
 
-    private static class MarkdownSectionSplitterNodeRendererFactory implements MarkdownNodeRendererFactory {
+    private static class MarkdownSectionTransformerNodeRendererFactory implements MarkdownNodeRendererFactory {
         private final MarkdownSplitterContext splitterContext;
 
-        public MarkdownSectionSplitterNodeRendererFactory(MarkdownSplitterContext splitterContext) {
+        public MarkdownSectionTransformerNodeRendererFactory(MarkdownSplitterContext splitterContext) {
             this.splitterContext = splitterContext;
         }
 

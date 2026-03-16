@@ -1,9 +1,9 @@
 package org.springframework.ai.reader.markdown;
 
-import static org.springframework.ai.reader.markdown.MarkdownSectionSplitter.SECTION_HEADER;
-import static org.springframework.ai.reader.markdown.MarkdownSectionSplitter.SECTION_INDEX_WITHIN_PARENT;
-import static org.springframework.ai.reader.markdown.MarkdownSectionSplitter.SECTION_LEVEL;
-import static org.springframework.ai.reader.markdown.MarkdownSectionSplitter.SECTION_PARENT_HEADER;
+import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_HEADER;
+import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_INDEX_WITHIN_PARENT;
+import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_LEVEL;
+import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_PARENT_HEADER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,8 +14,9 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.document.DocumentTransformer;
 
-class MarkdownSectionSplitterTest implements WithAssertions {
+class MarkdownSectionTransformerTest implements WithAssertions {
 
     @Test
     void testNoSubSplitter() {
@@ -45,9 +46,9 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 header
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(12);
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, ".");
@@ -73,10 +74,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 1
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(2);
         checkTextSegment(source, segments.get(0), null, null, 0, 0, "Intro text");
@@ -92,11 +93,11 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 1
                 """;
 
-        DocumentSplitter splitter =
-                MarkdownSectionSplitter.builder().setDocumentTitle("Doc Title").build();
+        DocumentTransformer splitter =
+                MarkdownSectionTransformer.builder().setDocumentTitle("Doc Title").build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(2);
         checkTextSegment(source, segments.get(0), "Doc Title", null, 0, 0, "Intro text");
@@ -118,13 +119,13 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 2.2 split
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder()
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder()
                 .setDocumentTitle("Doc Title")
                 .setSectionSplitter(wordBoundarySplitter(11))
                 .build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(7);
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, ".");
@@ -169,10 +170,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 ```
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(3);
 
@@ -190,10 +191,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 1 is `the best` ever
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(2);
 
@@ -222,10 +223,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 Final text""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(
@@ -271,10 +272,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                         print(x);
                 Final text""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(
@@ -315,10 +316,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 Paragraph3""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, "Paragraph 1\n\nParagraph2\n\nParagraph3");
@@ -332,10 +333,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 # Title
                 The *quick* brown _fox_ jumped **over** the __lazy__ dog""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(
@@ -363,10 +364,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 1
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(2, segments.size());
 
@@ -390,10 +391,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 * First
                 * Second""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(
@@ -422,10 +423,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 1. First
                 2. Second""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(
@@ -468,10 +469,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 # Title
                 """ + body;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, body.trim());
@@ -513,10 +514,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 Final text""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, expected);
@@ -538,10 +539,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 """ + body;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, body);
@@ -559,10 +560,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 outro
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
 
@@ -576,10 +577,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 intro [A Link](https://a.com "testA").""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
 
@@ -601,9 +602,9 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
                 outro""";
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
 
@@ -626,11 +627,11 @@ class MarkdownSectionSplitterTest implements WithAssertions {
 
         Map<String, List<String>> frontMatter = new HashMap<>();
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder()
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder()
                 .setYamlFrontMatterConsumer(frontMatter::putAll)
                 .build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(1, segments.size());
 
@@ -660,9 +661,9 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 paragraph content
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(4, segments.size());
 
@@ -689,10 +690,10 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 2
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
 
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         Assertions.assertEquals(3, segments.size());
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, ".");
@@ -726,9 +727,9 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 Section 2 content
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder().build();
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         // Should only have 2 sections: "Section 1" and "Section 2"
         // The headers inside the list and blockquote should NOT create sections
@@ -772,11 +773,11 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 section 3
                 """;
 
-        DocumentSplitter splitter = MarkdownSectionSplitter.builder()
+        DocumentTransformer splitter = MarkdownSectionTransformer.builder()
                 .setEmptySectionPlaceholderText("[empty]")
                 .build();
         Document source = createDocument(text);
-        List<Document> segments = splitter.split(source);
+        List<Document> segments = splitter.apply(List.of(source));
 
         assertThat(segments.size()).isEqualTo(6);
         checkTextSegment(source, segments.get(0), "Title", null, 0, 0, "[empty]");
@@ -819,8 +820,8 @@ class MarkdownSectionSplitterTest implements WithAssertions {
      * to keep segments within the maximum character size, and adds an "index" metadata
      * entry to each resulting segment.
      */
-    private static DocumentSplitter wordBoundarySplitter(int maxSize) {
-        return document -> {
+    private static DocumentTransformer wordBoundarySplitter(int maxSize) {
+            return documents -> documents.stream().flatMap(document -> {
             String text = document.getText();
             List<Document> segments = new ArrayList<>();
             String[] words = text.split("\\s+");
@@ -846,7 +847,7 @@ class MarkdownSectionSplitterTest implements WithAssertions {
                 segments.add(new Document(current.toString(), meta));
             }
 
-            return segments;
-        };
+                return segments.stream();
+        }).toList();
     }
 }
