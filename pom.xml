@@ -21,8 +21,8 @@
 		<url/>
 	</scm>
 	<properties>
-		<commonmark.version>0.27.1</commonmark.version>
-		<spring-ai.version>1.1.2</spring-ai.version>
+		<commonmark.version>0.28.0</commonmark.version>
+		<spring-ai.version>1.1.4</spring-ai.version>
 		<java.version>25</java.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
