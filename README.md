@@ -1,162 +1,113 @@
 # Splitter Playground
 
-This repository is a multi-module Maven project:
+Multi-module Maven project with two Markdown chunking strategies for [Spring AI](https://docs.spring.io/spring-ai/reference/) RAG pipelines.
 
-- `splitter-v1`: section-based Markdown splitter (`MarkdownSectionTransformer`)
-- `splitter-v2`: text-splitting variant (`MarkdownTextSplitter`)
-
-Both modules use the Java package namespace `de.idon.playground.splitter`.
-
-## splitter-v1
-
-A [Spring AI](https://docs.spring.io/spring-ai/reference/) `DocumentTransformer` that splits Markdown documents into sections based on headings. Each section becomes a separate `Document` enriched with structural metadata -- heading text, level, parent heading, and sibling index -- making it ideal for chunking Markdown content in RAG (Retrieval-Augmented Generation) pipelines.
-
-Inspired by the `MarkdownDocumentSplitter` from [LangChain4j](https://github.com/langchain4j/langchain4j).
-
-## Features
-
-- Splits Markdown into sections at heading boundaries (H1 through H6)
-- Preserves the full heading hierarchy as metadata on each section
-- Supports GFM tables, fenced/indented code blocks, block quotes, nested lists, and emphasis
-- Parses YAML front matter via an optional consumer callback
-- Strips images from output
-- Strips UTF-8 BOM characters
-- Headings inside code blocks, block quotes, or list items are **not** treated as section boundaries
-- Optionally chains a secondary `DocumentTransformer` to further split sections (e.g. by token count)
-- Builder-based configuration
-
-## Requirements
-
-- Java 17+
-- Spring AI 1.1.x (`spring-ai-commons`)
-
-## Installation
-
-Add the dependency to your `pom.xml`:
-
-```xml
-<dependency>
-        <groupId>de.idon.playground</groupId>
-        <artifactId>splitter-v1</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-</dependency>
-```
-
-Import the transformer from:
-
-```java
-import de.idon.playground.splitter.MarkdownSectionTransformer;
-```
-
-If you want to use the second module (`splitter-v2`), use:
-
-```xml
-<dependency>
-        <groupId>de.idon.playground</groupId>
-        <artifactId>splitter-v2</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-</dependency>
-```
-
-```java
-import de.idon.playground.splitter.MarkdownTextSplitter;
-```
-
-## Usage
-
-### Basic splitting
-
-```java
-var transformer = MarkdownSectionTransformer.builder().build();
-
-var source = new Document("""
-        # Introduction
-        Some introductory text.
-
-        ## Getting Started
-        Follow these steps to get started.
-
-        ## API Reference
-        Details about the API.
-        """);
-
-List<Document> sections = transformer.apply(List.of(source));
-// Returns 3 Documents, one per section
-```
-
-### Inspecting metadata
-
-Each output `Document` carries the following metadata keys:
-
-| Constant | Metadata key | Description |
-|---|---|---|
-| `SECTION_LEVEL` | `md_section_level` | 0-based heading level (H1 = 0, H2 = 1, ...) |
-| `SECTION_HEADER` | `md_section_header` | The heading text of this section |
-| `SECTION_PARENT_HEADER` | `md_parent_header` | The heading text of the parent section |
-| `SECTION_INDEX_WITHIN_PARENT` | `md_section_index_in_parent` | Zero-based index among siblings under the same parent |
-
-```java
-Document section = sections.get(1); // "Getting Started"
-section.getMetadata().get("md_section_header");          // "Getting Started"
-section.getMetadata().get("md_section_level");           // 1
-section.getMetadata().get("md_parent_header");           // "Introduction"
-section.getMetadata().get("md_section_index_in_parent"); // 0
-```
-
-### Setting a document title
-
-When a document starts with text before the first heading, that text becomes a section with no header. Use `setDocumentTitle` to give it a name:
-
-```java
-var transformer = MarkdownSectionTransformer.builder()
-        .setDocumentTitle("My Document")
-        .build();
-```
-
-### Chaining a secondary splitter
-
-You can further split each section with another `DocumentTransformer` -- useful for enforcing a maximum chunk size:
-
-```java
-var transformer = MarkdownSectionTransformer.builder()
-        .setSectionSplitter(myTokenSplitter)
-        .build();
-```
-
-### Consuming YAML front matter
-
-```java
-var transformer = MarkdownSectionTransformer.builder()
-        .setYamlFrontMatterConsumer(frontMatter -> {
-            // frontMatter is Map<String, List<String>>
-            System.out.println(frontMatter);
-        })
-        .build();
-```
-
-### Empty section placeholder
-
-Sections that contain only a heading and no body text receive a placeholder. The default is `"."`. To customize:
-
-```java
-var transformer = MarkdownSectionTransformer.builder()
-        .setEmptySectionPlaceholderText("[empty]")
-        .build();
-```
-
-## How it works
-
-1. The input Markdown is parsed into an AST using [CommonMark](https://commonmark.org/).
-2. A custom `MarkdownRenderer` walks the AST. When it encounters a top-level heading, it finalizes the previous section and starts a new one.
-3. Headings nested inside block quotes or list items do **not** create section boundaries.
-4. Each section is emitted as a `Document` with the section text as content and heading hierarchy as metadata.
-5. Original metadata from the input `Document` is preserved on every output section.
+**Requirements:** Java 17+, Spring AI 1.1.x  
+**Package:** `de.idon.playground.splitter`
 
 ## Building
 
 ```sh
 ./mvnw clean verify
 ```
+
+---
+
+## splitter-v1 — `MarkdownSectionTransformer`
+
+A `DocumentTransformer` that splits Markdown at heading boundaries (H1–H6). Each heading becomes one `Document`. Inspired by [LangChain4j's MarkdownDocumentSplitter](https://github.com/langchain4j/langchain4j).
+
+```xml
+<dependency>
+    <groupId>de.idon.playground</groupId>
+    <artifactId>splitter-v1</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+**Key features:**
+- One `Document` per heading section, with structural metadata
+- Headings inside code blocks, block quotes, or list items are not treated as boundaries
+- Optional YAML front matter consumer, secondary splitter, and empty-section placeholder
+- Strips images and UTF-8 BOM
+
+**Metadata keys:**
+
+| Key | Description |
+|---|---|
+| `md_section_level` | 0-based heading level (H1 = 0) |
+| `md_section_header` | Heading text |
+| `md_parent_header` | Parent heading text |
+| `md_section_index_in_parent` | Zero-based sibling index |
+
+**Usage:**
+
+```java
+var transformer = MarkdownSectionTransformer.builder()
+        .setDocumentTitle("Preamble")       // title for pre-heading text
+        .setSectionSplitter(myTokenSplitter) // optional secondary split
+        .setEmptySectionPlaceholderText(".") // default
+        .setYamlFrontMatterConsumer(fm -> {})
+        .build();
+
+List<Document> sections = transformer.apply(List.of(source));
+```
+
+---
+
+## splitter-v2 — `MarkdownTextSplitter`
+
+A `TextSplitter` subclass using a hybrid strategy: line-based scanning for source-preserving extraction, CommonMark AST for heading normalization, and a block model to avoid splitting tables, lists, or code fences mid-structure.
+
+```xml
+<dependency>
+    <groupId>de.idon.playground</groupId>
+    <artifactId>splitter-v2</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+**Key features:**
+- Size-bounded chunks (`maxChunkChars`, default 4000; `minChunkChars`, default 250)
+- Merges small adjacent sections to avoid undersized chunks
+- Splits oversized sections at block boundaries (tables, fences, lists, block quotes)
+- Extracts and optionally exposes YAML front matter as metadata
+- GitHub-style anchor slugs with deduplication
+- Full heading hierarchy metadata (`header_h1` … `header_h6`)
+
+**Metadata keys (selection):**
+
+| Key | Description |
+|---|---|
+| `section_title` | Heading text of the chunk's section |
+| `heading_level` | ATX heading level (1–6; 0 = preamble) |
+| `heading_path` | Full breadcrumb, e.g. `Intro > Setup` |
+| `anchor_slug` | GitHub-style slug, deduplicated |
+| `section_index` | 0-based section index in document |
+| `chunk_index` | 0-based chunk index within the section |
+| `char_count` / `word_count` | Chunk size metrics |
+| `has_code_block` | `true` if chunk contains a fenced code block |
+| `source_line_start/end` | Original line numbers in source |
+| `merged_sections` | Number of merged sections (when merging) |
+
+**Usage:**
+
+```java
+var splitter = MarkdownTextSplitter.builder()
+        .maxChunkChars(4000)
+        .minChunkChars(250)
+        .minSectionCharsToKeepStandalone(200)
+        .mergeSmallSections(true)
+        .splitLargeSections(true)
+        .includeHeadingInChunk(true)
+        .includeHierarchyMetadata(true)
+        .extractFrontmatter(true)
+        .build();
+
+List<Document> chunks = splitter.apply(List.of(source));
+```
+
+---
 
 ## License
 
