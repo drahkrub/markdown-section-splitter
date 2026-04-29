@@ -1,0 +1,32 @@
+[
+  {
+    "text": "# Heading\n\nBody text",
+    "metadata": {
+      "source": "frontmatter.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 0,
+      "total_chunks": 1,
+      "section_title": "Heading",
+      "heading_level": 1,
+      "heading_path": "Heading",
+      "section_index": 0,
+      "total_chunks_in_section": 1,
+      "char_count": 20,
+      "word_count": 4,
+      "has_code_block": false,
+      "has_frontmatter": true,
+      "frontmatter": {
+        "title": "Demo",
+        "published": true,
+        "tags": ["one", "two"]
+      },
+      "source_line_start": 9,
+      "source_line_end": 11,
+      "anchor_slug": "heading",
+      "header_h1": "Heading",
+      "merged_sections": 1,
+      "merged_section_titles": ["Heading"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  }
+]

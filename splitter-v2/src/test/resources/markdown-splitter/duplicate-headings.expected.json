@@ -1,0 +1,52 @@
+[
+  {
+    "text": "# Intro\n\nAlpha",
+    "metadata": {
+      "source": "duplicate-headings.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 0,
+      "total_chunks": 2,
+      "section_title": "Intro",
+      "heading_level": 1,
+      "heading_path": "Intro",
+      "section_index": 0,
+      "total_chunks_in_section": 1,
+      "char_count": 14,
+      "word_count": 3,
+      "has_code_block": false,
+      "has_frontmatter": false,
+      "source_line_start": 1,
+      "source_line_end": 4,
+      "anchor_slug": "intro",
+      "header_h1": "Intro",
+      "merged_sections": 1,
+      "merged_section_titles": ["Intro"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  },
+  {
+    "text": "# Intro\n\nBeta",
+    "metadata": {
+      "source": "duplicate-headings.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 1,
+      "total_chunks": 2,
+      "section_title": "Intro",
+      "heading_level": 1,
+      "heading_path": "Intro",
+      "section_index": 1,
+      "total_chunks_in_section": 1,
+      "char_count": 13,
+      "word_count": 3,
+      "has_code_block": false,
+      "has_frontmatter": false,
+      "source_line_start": 5,
+      "source_line_end": 7,
+      "anchor_slug": "intro-1",
+      "header_h1": "Intro",
+      "merged_sections": 1,
+      "merged_section_titles": ["Intro"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  }
+]

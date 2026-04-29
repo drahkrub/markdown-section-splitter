@@ -1,0 +1,79 @@
+[
+  {
+    "text": "# Title\n\nIntro text.",
+    "metadata": {
+      "source": "basic.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 0,
+      "total_chunks": 3,
+      "section_title": "Title",
+      "heading_level": 1,
+      "heading_path": "Title",
+      "section_index": 0,
+      "total_chunks_in_section": 1,
+      "char_count": 20,
+      "word_count": 4,
+      "has_code_block": false,
+      "has_frontmatter": false,
+      "source_line_start": 1,
+      "source_line_end": 4,
+      "anchor_slug": "title",
+      "header_h1": "Title",
+      "merged_sections": 1,
+      "merged_section_titles": ["Title"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  },
+  {
+    "text": "## Section A\n\nA content.",
+    "metadata": {
+      "source": "basic.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 1,
+      "total_chunks": 3,
+      "section_title": "Section A",
+      "heading_level": 2,
+      "heading_path": "Title > Section A",
+      "section_index": 1,
+      "total_chunks_in_section": 1,
+      "char_count": 24,
+      "word_count": 5,
+      "has_code_block": false,
+      "has_frontmatter": false,
+      "source_line_start": 5,
+      "source_line_end": 8,
+      "anchor_slug": "section-a",
+      "header_h1": "Title",
+      "header_h2": "Section A",
+      "merged_sections": 1,
+      "merged_section_titles": ["Section A"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  },
+  {
+    "text": "## Section B\n\nB content.",
+    "metadata": {
+      "source": "basic.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 2,
+      "total_chunks": 3,
+      "section_title": "Section B",
+      "heading_level": 2,
+      "heading_path": "Title > Section B",
+      "section_index": 2,
+      "total_chunks_in_section": 1,
+      "char_count": 24,
+      "word_count": 5,
+      "has_code_block": false,
+      "has_frontmatter": false,
+      "source_line_start": 9,
+      "source_line_end": 11,
+      "anchor_slug": "section-b",
+      "header_h1": "Title",
+      "header_h2": "Section B",
+      "merged_sections": 1,
+      "merged_section_titles": ["Section B"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH"]
+    }
+  }
+]

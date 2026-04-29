@@ -1,9 +1,9 @@
-package org.springframework.ai.reader.markdown;
+package de.idon.playground.splitter;
 
-import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_HEADER;
-import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_INDEX_WITHIN_PARENT;
-import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_LEVEL;
-import static org.springframework.ai.reader.markdown.MarkdownSectionTransformer.SECTION_PARENT_HEADER;
+import static de.idon.playground.splitter.MarkdownSectionTransformer.SECTION_HEADER;
+import static de.idon.playground.splitter.MarkdownSectionTransformer.SECTION_INDEX_WITHIN_PARENT;
+import static de.idon.playground.splitter.MarkdownSectionTransformer.SECTION_LEVEL;
+import static de.idon.playground.splitter.MarkdownSectionTransformer.SECTION_PARENT_HEADER;
 
 import java.util.ArrayList;
 import java.util.HashMap;

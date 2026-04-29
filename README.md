@@ -1,4 +1,13 @@
-# Spring AI Markdown Document Reader
+# Splitter Playground
+
+This repository is a multi-module Maven project:
+
+- `splitter-v1`: section-based Markdown splitter (`MarkdownSectionTransformer`)
+- `splitter-v2`: text-splitting variant (`MarkdownTextSplitter`)
+
+Both modules use the Java package namespace `de.idon.playground.splitter`.
+
+## splitter-v1
 
 A [Spring AI](https://docs.spring.io/spring-ai/reference/) `DocumentTransformer` that splits Markdown documents into sections based on headings. Each section becomes a separate `Document` enriched with structural metadata -- heading text, level, parent heading, and sibling index -- making it ideal for chunking Markdown content in RAG (Retrieval-Augmented Generation) pipelines.
 
@@ -27,10 +36,30 @@ Add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-markdown-document-reader</artifactId>
+        <groupId>de.idon.playground</groupId>
+        <artifactId>splitter-v1</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
+```
+
+Import the transformer from:
+
+```java
+import de.idon.playground.splitter.MarkdownSectionTransformer;
+```
+
+If you want to use the second module (`splitter-v2`), use:
+
+```xml
+<dependency>
+        <groupId>de.idon.playground</groupId>
+        <artifactId>splitter-v2</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+```java
+import de.idon.playground.splitter.MarkdownTextSplitter;
 ```
 
 ## Usage

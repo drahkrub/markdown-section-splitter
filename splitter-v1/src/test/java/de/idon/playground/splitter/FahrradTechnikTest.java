@@ -1,4 +1,4 @@
-package org.springframework.ai.reader.markdown;
+package de.idon.playground.splitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -30,6 +30,12 @@ class FahrradTechnikTest implements WithAssertions {
                 Files.readString(Path.of(inputFile))
         );
         DocumentTransformer splitter = MarkdownSectionTransformer.builder().build();
+
+//        MarkdownTextSplitter splitter = MarkdownTextSplitter.builder()
+//                .splitLargeSections(false)
+//                .mergeSmallSections(true)
+//                .build();
+
         List<Document> chunks = splitter.apply(List.of(document));
         for (int i = chunks.size(); --i >= 0;) {
             final Document chunk = chunks.get(i);

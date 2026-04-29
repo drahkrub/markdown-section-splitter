@@ -1,4 +1,4 @@
-package org.springframework.ai.reader.markdown;
+package de.idon.playground.splitter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,0 +1,27 @@
+[
+  {
+    "text": "# Mixed\n\nParagraph text.\n\n- item 1\n- item 2\n\n> quote line 1\n> quote line 2\n\n```java\nSystem.out.println(\"Hello\");\n```\n\n| A | B |\n|---|---|\n| 1 | 2 |",
+    "metadata": {
+      "source": "block-mix.md",
+      "parent_document_id": "fixture-doc",
+      "chunk_index": 0,
+      "total_chunks": 1,
+      "section_title": "Mixed",
+      "heading_level": 1,
+      "heading_path": "Mixed",
+      "section_index": 0,
+      "total_chunks_in_section": 1,
+      "char_count": 147,
+      "word_count": 32,
+      "has_code_block": true,
+      "has_frontmatter": false,
+      "source_line_start": 1,
+      "source_line_end": 17,
+      "anchor_slug": "mixed",
+      "header_h1": "Mixed",
+      "merged_sections": 1,
+      "merged_section_titles": ["Mixed"],
+      "block_types": ["HEADING", "BLANK", "PARAGRAPH", "LIST", "BLOCK_QUOTE", "FENCED_CODE", "TABLE"]
+    }
+  }
+]
